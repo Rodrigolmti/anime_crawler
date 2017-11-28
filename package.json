@@ -1,0 +1,22 @@
+{
+  "name": "anime_crawler",
+  "version": "1.0.0",
+  "description": "Application to crawle animes on assistiranimes.net",
+  "main": "server.js",
+  "dependencies": {
+    "body-parser": "^1.17.2",
+    "cheerio": "^0.20.0",
+    "consign": "^0.1.2",
+    "express": "^4.13.3",
+    "file-system": "^2.2.2",
+    "morgan": "^1.8.1",
+    "node-schedule": "^1.2.3",
+    "request": "^2.69.0",
+    "request-promise": "^4.2.1"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Rodrigolmti",
+  "license": "ISC"
+}
