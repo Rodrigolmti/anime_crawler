@@ -9,53 +9,8 @@ var videoLink = new Array();
 var episodes = new Array();
 var animes = new Array();
 
-var getAnimes = function (url) {
+var init = function (url) {
     getCategories(url);
-    // fs.readFile('./app/mock/data.html', 'utf8', (error, data) => {
-    //     if (error) {
-    //         throw error
-    //     }
-
-    //     var $ = cheerio.load(data, {
-    //         ignoreWhitespace: true,
-    //         xmlMode: true
-    //     });
-
-    //     $('body').children('home').children('div').children('div').children('ul').children('li').each(function (index, row) {
-    //         console.log($(this).children('a').attr('href'));
-    //     });
-    // });
-
-    // request(url, function (error, response, body) {
-    //     if (!error && response.statusCode == 200) {
-    //         const $ = cheerio.load(body, {
-    //             ignoreWhitespace: true,
-    //             xmlMode: true
-    //         });
-
-    //         $('a').each(function (index, row) {
-    //             links[index] = $(this).attr('href');
-    //         });
-
-    //         for (i in links) {
-    //             request(links[i], function (error, response, body) {
-    //                 if (!error && response.statusCode == 200) {
-    //                     const anime = cheerio.load(body, {
-    //                         ignoreWhitespace: true,
-    //                         xmlMode: true
-    //                     });
-
-    //                     anime('body').children('home').children('div').children('div').next().children('input').children('ul').children('li').each((index, row) => {
-    //                         episodeLink[index] = anime(this).children('p').children('a').attr('href');
-    //                     });
-
-    //                     episodes[i] = episodeLink;
-    //                     console.log(episodeLink.length);
-    //                 }
-    //             });
-    //         }
-    //     }
-    // });
 };
 
 function getCategories(url) {
@@ -71,11 +26,11 @@ function getCategories(url) {
         });
 
         createFile('./data/categorias.txt', categories);
-        getCategoryAnime();
+        getAnimes();
     });
 }
 
-function getCategoryAnime() {
+function getAnimes() {
     console.log('#LOG Start get animes');
     for (i in categories) {
         request(categories[i], (error, response, body) => {
@@ -84,54 +39,53 @@ function getCategoryAnime() {
             }
             const $ = loadBody(body);
 
-            var aux = new Array();
-            $('a').each(function (index, row) {
-              aux[index] = $(this).attr('href');  
+            var array = new Array();
+            $('body').children('home').children('div').children('div').children().children('ul').children('li').each(function (index, row) {
+                array[index] = $(this).children('a').attr('href');
             });
-            animes[i] = aux
-            createFile('./data/animes.txt', animes);
-            getAnimeEpisodes();
+            animes[i] = array;
+            console.log(array.length);
+            getAnimeEpisodes(array);
         });
     }
 }
 
-function getAnimeEpisodes() {
+function getAnimeEpisodes(array) {
     console.log('#LOG Start get animes episodes');
-    for (i in animes) {
-        request(animes[i], (error, response, body) => {
-            if (error) {
-                throw error;
-            }
-            const $ = loadBody(body);
-
-            $('a').each(function (index, row) {
-                episodes[index] = $(this).attr('href');
-                console.log(episodes[index]);
+    for (i in array) {
+        if (array[i] != '' && array[i] != 'assistiranimes.net') {
+            request(array[i], (error, response, body) => {
+                if (error) {
+                    throw error;
+                }
+                const $ = loadBody(body);
+                var aux = new Array();
+                $('body').children('home').children('div').children().next().children().next().children('ul').children('li').each(function (index, row) {
+                    aux[index] = $(this).children('a').attr('href');
+                });
+                episodes[i] = aux;
+                console.log(aux.length);
+                getEpisodesLink(aux);
             });
-
-            createFile('./data/episodes.txt', episodes);
-            getEpisodesLink();
-        });
+        }
     }
 }
 
-function getEpisodesLink() {
+function getEpisodesLink(array) {
     console.log('#LOG Start get animes episodes links');
-    for (i in episodes) {
-        request(episodes[i], (error, response, body) => {
+    for (i in array) {
+        request(array[i], (error, response, body) => {
             if (error) {
                 throw error;
             }
             const $ = loadBody(body);
-
             $('body').children('home').children('div').children('div').next().children('input').children('ul').children('li').each((index, row) => {
                 episodeLink[index] = $(this).children('p').children('a').attr('href');
             });
-
             createFile('./data/episodeLink.txt', episodeLink);
             getEpisodesLink();
         });
-        
+
     }
 }
 
@@ -147,7 +101,7 @@ function loadBody(url) {
 }
 
 var start = function () {
-    getAnimes(urlAnime);
+    init(urlAnime);
 };
 
 module.exports.Init = start;
