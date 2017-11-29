@@ -3,6 +3,7 @@ var cheerio = require('cheerio');
 var fs = require('fs');
 
 var urlAnime = "http://assistiranimes.net/animes/?pagina=animes#!home";
+
 var episodeLink = new Array();
 var categories = new Array();
 var videoLink = new Array();
@@ -10,8 +11,23 @@ var episodes = new Array();
 var animes = new Array();
 
 var init = function (url) {
-    getCategories(url);
-};
+
+    fs.readFile('./app/mock/data.html', 'utf8', (error, data) => {
+            if (error) {
+                throw error;
+            };
+            const $ = loadBody(data);
+
+            console.log($('body').children().next().children().next().children('div').children('div').html());
+            $('body').children().next().children().next().children('div').each(function(index, row) {
+                        console.log($(this).children('div').children('p').children('video').children('source').attr('href'));
+                });
+            // $('body').children('home').children('div').children('div').each((index, row) => {
+            //     console.log($(this).children('div').children('p').children('video').children('source').attr('href'));
+            // });
+    });
+    // getCategories(url);
+}
 
 function getCategories(url) {
     console.log('#LOG Start get categories');
@@ -20,7 +36,6 @@ function getCategories(url) {
             throw error;
         }
         const $ = loadBody(body);
-
         $('body').children('home').children('div').children('div').children('ul').children('li').each(function (index, row) {
             categories[index] = $(this).children('a').attr('href');
         });
@@ -38,14 +53,13 @@ function getAnimes() {
                 throw error;
             }
             const $ = loadBody(body);
-
-            var array = new Array();
+            var aux = new Array();
             $('body').children('home').children('div').children('div').children().children('ul').children('li').each(function (index, row) {
-                array[index] = $(this).children('a').attr('href');
+                aux[index] = $(this).children('a').attr('href');
             });
-            animes[i] = array;
-            console.log(array.length);
-            getAnimeEpisodes(array);
+            animes[i] = aux;
+            createFile('./data/anime' + i + '.txt', aux);
+            getAnimeEpisodes(aux);
         });
     }
 }
@@ -53,7 +67,7 @@ function getAnimes() {
 function getAnimeEpisodes(array) {
     console.log('#LOG Start get animes episodes');
     for (i in array) {
-        if (array[i] != '' && array[i] != 'assistiranimes.net') {
+        if (array[i] != undefined) {
             request(array[i], (error, response, body) => {
                 if (error) {
                     throw error;
@@ -64,7 +78,7 @@ function getAnimeEpisodes(array) {
                     aux[index] = $(this).children('a').attr('href');
                 });
                 episodes[i] = aux;
-                console.log(aux.length);
+                createFile('./data/episode' + i + '.txt', aux);
                 getEpisodesLink(aux);
             });
         }
@@ -74,18 +88,19 @@ function getAnimeEpisodes(array) {
 function getEpisodesLink(array) {
     console.log('#LOG Start get animes episodes links');
     for (i in array) {
-        request(array[i], (error, response, body) => {
-            if (error) {
-                throw error;
-            }
-            const $ = loadBody(body);
-            $('body').children('home').children('div').children('div').next().children('input').children('ul').children('li').each((index, row) => {
-                episodeLink[index] = $(this).children('p').children('a').attr('href');
+        if (array[i] != undefined) {
+            request(array[i], (error, response, body) => {
+                if (error) {
+                    throw error;
+                }
+                const $ = loadBody(body);
+                var aux = new Array();
+                $('body').children('home').children('div').children('div').each((index, row) => {
+                    aux[index] = $(this).children('div').children('p').children('video').children('source').attr('href');
+                });
+                createFile('./data/episodeLink.txt', aux);
             });
-            createFile('./data/episodeLink.txt', episodeLink);
-            getEpisodesLink();
-        });
-
+        }
     }
 }
 
@@ -105,9 +120,3 @@ var start = function () {
 };
 
 module.exports.Init = start;
-
-
-// $('body').children().next().children('home').children('div').children('div').each(function (index, row) {
-//     console.log($(this).children('div').children('p').children('video').children('source').attr(''));
-// });
-// });
