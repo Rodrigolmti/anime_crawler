@@ -61,16 +61,16 @@ var getAnimes = function (url) {
 function getCategories(url) {
     console.log('#LOG Start get categories');
     request(url, (error, response, body) => {
-        const $ = cheerio.load(body, {
-            ignoreWhitespace: true,
-            xmlMode: true
-        });
+        if (error) {
+            throw error;
+        }
+        const $ = loadBody(body);
 
         $('body').children('home').children('div').children('div').children('ul').children('li').each(function (index, row) {
             categories[index] = $(this).children('a').attr('href');
         });
 
-        console.log(categories.length);
+        createFile('./data/categorias.txt', categories);
         getCategoryAnime();
     });
 }
@@ -79,15 +79,17 @@ function getCategoryAnime() {
     console.log('#LOG Start get animes');
     for (i in categories) {
         request(categories[i], (error, response, body) => {
-            const $ = cheerio.load(body, {
-                ignoreWhitespace: true,
-                xmlMode: true
-            });
-            $('a').each(function (index, row) {
-                animes[index] = $(this).attr('href');
-            });
+            if (error) {
+                throw error;
+            }
+            const $ = loadBody(body);
 
-            console.log(animes.length);
+            var aux = new Array();
+            $('a').each(function (index, row) {
+              aux[index] = $(this).attr('href');  
+            });
+            animes[i] = aux
+            createFile('./data/animes.txt', animes);
             getAnimeEpisodes();
         });
     }
@@ -97,17 +99,18 @@ function getAnimeEpisodes() {
     console.log('#LOG Start get animes episodes');
     for (i in animes) {
         request(animes[i], (error, response, body) => {
-            const $ = cheerio.load(body, {
-                ignoreWhitespace: true,
-                xmlMode: true
-            });
-
-            console.log('---------' + animes[i] + '---------');
+            if (error) {
+                throw error;
+            }
+            const $ = loadBody(body);
 
             $('a').each(function (index, row) {
                 episodes[index] = $(this).attr('href');
                 console.log(episodes[index]);
             });
+
+            createFile('./data/episodes.txt', episodes);
+            getEpisodesLink();
         });
     }
 }
@@ -115,10 +118,32 @@ function getAnimeEpisodes() {
 function getEpisodesLink() {
     console.log('#LOG Start get animes episodes links');
     for (i in episodes) {
-        anime('body').children('home').children('div').children('div').next().children('input').children('ul').children('li').each((index, row) => {
-            episodeLink[index] = anime(this).children('p').children('a').attr('href');
+        request(episodes[i], (error, response, body) => {
+            if (error) {
+                throw error;
+            }
+            const $ = loadBody(body);
+
+            $('body').children('home').children('div').children('div').next().children('input').children('ul').children('li').each((index, row) => {
+                episodeLink[index] = $(this).children('p').children('a').attr('href');
+            });
+
+            createFile('./data/episodeLink.txt', episodeLink);
+            getEpisodesLink();
         });
+        
     }
+}
+
+function createFile(fileName, array) {
+    fs.writeFileSync(fileName, array.join('\n'));
+}
+
+function loadBody(url) {
+    return cheerio.load(url, {
+        ignoreWhitespace: true,
+        xmlMode: true
+    });
 }
 
 var start = function () {
