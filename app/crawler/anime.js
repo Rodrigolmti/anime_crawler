@@ -11,22 +11,7 @@ var episodes = new Array();
 var animes = new Array();
 
 var init = function (url) {
-
-    fs.readFile('./app/mock/data.html', 'utf8', (error, data) => {
-            if (error) {
-                throw error;
-            };
-            const $ = loadBody(data);
-
-            console.log($('body').children().next().children().next().children('div').children('div').html());
-            $('body').children().next().children().next().children('div').each(function(index, row) {
-                        console.log($(this).children('div').children('p').children('video').children('source').attr('href'));
-                });
-            // $('body').children('home').children('div').children('div').each((index, row) => {
-            //     console.log($(this).children('div').children('p').children('video').children('source').attr('href'));
-            // });
-    });
-    // getCategories(url);
+    getCategories(url);
 }
 
 function getCategories(url) {
@@ -48,39 +33,56 @@ function getCategories(url) {
 function getAnimes() {
     console.log('#LOG Start get animes');
     for (i in categories) {
-        request(categories[i], (error, response, body) => {
-            if (error) {
-                throw error;
-            }
-            const $ = loadBody(body);
-            var aux = new Array();
-            $('body').children('home').children('div').children('div').children().children('ul').children('li').each(function (index, row) {
-                aux[index] = $(this).children('a').attr('href');
+        console.log('Fetching ----> ' + categories[i]);
+        if (categories[i] != null) {
+            request(categories[i], (error, response, body) => {
+                if (error) {
+                    throw error;
+                }
+                const $ = loadBody(body);
+                var aux = new Array();
+                var anime = { nome : "", link : "", imagem : "", ano : "", sinopse : "", categorias : "" };
+                $('body').children('home').children('div').children('div').children().children('ul').children('li').each(function (index, row) {
+                    anime.nome = $(this).children('a').children('p').children('h3').text();
+                    anime.imagem = $(this).children('img').attr('data-src');
+                    anime.link = $(this).children('a').attr('href');
+                    aux[index] = anime;
+                });
+                animes[i] = aux;
+                createFile('./data/anime' + i + '.txt', aux);
+                getAnimeEpisodes(aux);
             });
-            animes[i] = aux;
-            createFile('./data/anime' + i + '.txt', aux);
-            getAnimeEpisodes(aux);
-        });
+        } else {
+            console.log('Failed to fetching ----> ' + categories[i]);
+        }
     }
 }
 
 function getAnimeEpisodes(array) {
     console.log('#LOG Start get animes episodes');
     for (i in array) {
-        if (array[i] != undefined) {
-            request(array[i], (error, response, body) => {
+        console.log('Fetching ----> ' + array[i].link);
+        if (array[i].link != null) {
+            request(array[i].link, (error, response, body) => {
                 if (error) {
                     throw error;
                 }
                 const $ = loadBody(body);
                 var aux = new Array();
+                var anime = { nome : "", link : "", imagem : "" };
+
+                console.log($('body').children('home').children('div').children().children().next().children().next().text());
+                array[i].sinopse = $('body').children('home').children('div').children().children().next().children().next().text();
+
                 $('body').children('home').children('div').children().next().children().next().children('ul').children('li').each(function (index, row) {
-                    aux[index] = $(this).children('a').attr('href');
+                    aux[index] = $(this).children('p').children('a').attr('href');
                 });
                 episodes[i] = aux;
                 createFile('./data/episode' + i + '.txt', aux);
-                getEpisodesLink(aux);
+                // getEpisodesLink(aux);
             });
+        } else {
+            console.log('Failed to fetching ----> ' + array[i].link);
         }
     }
 }
@@ -88,18 +90,21 @@ function getAnimeEpisodes(array) {
 function getEpisodesLink(array) {
     console.log('#LOG Start get animes episodes links');
     for (i in array) {
-        if (array[i] != undefined) {
+        console.log('Fetching ----> ' + array[i]);
+        if (array[i] != null) {
             request(array[i], (error, response, body) => {
                 if (error) {
                     throw error;
                 }
                 const $ = loadBody(body);
                 var aux = new Array();
-                $('body').children('home').children('div').children('div').each((index, row) => {
-                    aux[index] = $(this).children('div').children('p').children('video').children('source').attr('href');
+                $('video').children('source').each(function (index, row) {
+                    aux[index] = ($(this).attr('src'));
                 });
                 createFile('./data/episodeLink.txt', aux);
             });
+        } else {
+            console.log('Failed to fetching ----> ' + array[i]);
         }
     }
 }
