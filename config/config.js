@@ -1,4 +1,4 @@
 module.exports = {
-	'secret': 'coinZilla$2017API',
-	'database': 'mongodb://localhost/coinZilla'
+	'secret': 'Anipix$2017Crawler',
+	'database': 'mongodb://localhost/anipix'
 };
