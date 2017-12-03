@@ -8,7 +8,7 @@ module.exports = function (app) {
     app.route('/api/v1/orderList')
         .get(anime.getOrderList);
 
-    app.route('/api/v1/animeByOrder')
+    app.route('/api/v1/animeByOrderId')
         .get(anime.getAnimeByOrder);
 
     app.route('/api/v1/episodeByAnimeId')

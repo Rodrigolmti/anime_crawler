@@ -10,7 +10,7 @@ var modelOrder = mongoose.model('Order');
 var modelAnime = mongoose.model('Anime');
 
 var init = function (url) {
-    // getOrders(url);
+    getOrders(url);
 }
 
 function getOrders(url) {
@@ -120,9 +120,11 @@ function getAnimeEpisodes(animes) {
 
                         // console.log($('body').children('home').children('div').children().children().next().children().next().text());
                         $('body').children('home').children('div').children().next().children().next().children('ul').children('li').each(function (index, row) {
+                            var link = $(this).children('p').children('a').attr('href')
                             var episode = {
                                 animeId: animes[i]._id,
-                                link: $(this).children('p').children('a').attr('href')
+                                link: link,
+                                numero: link.substring(link.length-2)
                             }
                             aux[index] = episode;
                         });

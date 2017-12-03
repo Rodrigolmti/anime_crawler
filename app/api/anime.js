@@ -48,7 +48,7 @@ module.exports = function (app) {
 
     api.getEpisodeByAnimeId = function (req, res) {
         if (req.query.animeId != null) {
-            modelEpisode.find({animeId : req.query.animeId}).then(function (data) {
+            modelEpisode.find({animeId : req.query.animeId}).sort({numero : 'asc'}).then(function (data) {
                 res.status(200).send({
                     success: true,
                     data: data
