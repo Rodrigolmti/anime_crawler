@@ -24,7 +24,7 @@ module.exports = function (app) {
         });
     };
 
-    api.getAnimeByOrder = function (req, res) {
+    api.getAnimeByOrderId = function (req, res) {
         if (req.query.orderId != null) {
             modelAnime.find({orderId : req.query.orderId}).then(function (data) {
                 res.status(200).send({
@@ -42,6 +42,28 @@ module.exports = function (app) {
             res.status(200).send({
                 success: false,
                 message: 'You need to provide an orderId.'
+            });
+        }
+    };
+
+    api.getAnimeByName = function (req, res) {
+        if (req.query.animeName != null) {
+            modelAnime.find({nome : new RegExp(req.query.animeName, "i")}).then(function (data) {
+                res.status(200).send({
+                    success: true,
+                    data: data
+                });
+            }, function (error) {
+                res.status(500).send({
+                    success: false,
+                    message: error
+                });
+                console.log(error);
+            });
+        } else {
+            res.status(200).send({
+                success: false,
+                message: 'You need to provide an animeName.'
             });
         }
     };

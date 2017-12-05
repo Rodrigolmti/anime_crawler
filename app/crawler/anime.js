@@ -161,7 +161,6 @@ function getEpisodesLink(episodes) {
             var interval = setInterval(() => {
                 if (i < episodes.length - 1) {
                     console.log('Fetching ----> ' + episodes[i].link);
-                    console.log(episodes[i]);
                     request(episodes[i].link, (error, response, body) => {
                         if (error) {
                             throw error;
