@@ -24,6 +24,7 @@ function getOrders(url) {
                 }
                 const $ = loadBody(body);
                 $('body').children('home').children('div').children('div').children('ul').children('li').each(function (index, row) {
+                    console.log('Fetching ----> ' + $(this).children('a').attr('href'));
                     modelOrder.create({
                         "order": $(this).children('a').attr('href')
                     }).then((_) => {}, (error) => {
@@ -53,8 +54,8 @@ function getAnimes(orders) {
             console.log('#LOG Start get animes');
             var i = 0
             var interval = setInterval(() => {
-                if (i < orders.length - 1) {
-                    console.log('Fetching ----> ' + orders[i].order);
+                if (i < orders.length) {
+                    console.log('Fetching ----> ' + orders[i].order + ' orderId: ' + orders[i]._id);
                     request(orders[i].order, (error, response, body) => {
                         if (error) {
                             throw error;
@@ -80,8 +81,8 @@ function getAnimes(orders) {
                                 }
                             });
                         });
+                        i++;   
                     });
-                    i++;
                 } else {
                     clearInterval(interval);
                 }
@@ -104,8 +105,8 @@ function getAnimeEpisodes(animes) {
             console.log('#LOG Start get animes episodes');
             var i = 0
             var interval = setInterval(() => {
-                if (i < animes.length - 1) {
-                    console.log('Fetching ----> ' + animes[i].link);
+                if (i < animes.length) {
+                    console.log('Fetching ----> ' + animes[i].link + ' animeId: ' + animes[i]._id);
                     request(animes[i].link, (error, response, body) => {
                         if (error) {
                             throw error;
@@ -135,8 +136,8 @@ function getAnimeEpisodes(animes) {
                                 }
                             });
                         });
+                        i++;
                     });
-                    i++;
                 } else {
                     clearInterval(interval);
                 }
@@ -159,8 +160,8 @@ function getEpisodesLink(episodes) {
             console.log('#LOG Start get animes episodes links');
             var i = 0
             var interval = setInterval(() => {
-                if (i < episodes.length - 1) {
-                    console.log('Fetching ----> ' + episodes[i].link);
+                if (i < episodes.length) {
+                    console.log('Fetching ----> ' + episodes[i].link + ' episodeId: ' + episodes[i]._id);
                     request(episodes[i].link, (error, response, body) => {
                         if (error) {
                             throw error;
@@ -180,8 +181,8 @@ function getEpisodesLink(episodes) {
                                 throw error;
                             }
                         });
+                        i++;
                     });
-                    i++;
                 } else {
                     clearInterval(interval);
                 }
