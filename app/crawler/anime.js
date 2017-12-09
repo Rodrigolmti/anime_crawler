@@ -24,10 +24,13 @@ function getOrders(url) {
                 }
                 const $ = loadBody(body);
                 $('body').children('home').children('div').children('div').children('ul').children('li').each(function (index, row) {
-                    console.log('Fetching ----> ' + $(this).children('a').attr('href'));
-                    modelOrder.create({
-                        "order": $(this).children('a').attr('href')
-                    }).then((_) => {}, (error) => {
+                    var link = $(this).children('a').attr('href');
+                    var order = {
+                        order: link,
+                        word: link.substring(link.length - 1, link.length)
+                    }
+                    console.log(order);
+                    modelOrder.create(order).then((_) => { }, (error) => {
                         if (error) {
                             throw error;
                         }
@@ -35,7 +38,7 @@ function getOrders(url) {
                 });
                 modelOrder.find({}).then((data) => {
                     getAnimes(orders);
-                }, (error) => {});
+                }, (error) => { });
             });
         } else {
             getAnimes(data);
@@ -75,13 +78,13 @@ function getAnimes(orders) {
                             aux[index] = anime;
                         });
                         aux.forEach(function (item) {
-                            modelAnime.create(item).then(() => {}, (error) => {
+                            modelAnime.create(item).then(() => { }, (error) => {
                                 if (error) {
                                     throw error;
                                 }
                             });
                         });
-                        i++;   
+                        i++;
                     });
                 } else {
                     clearInterval(interval);
@@ -117,7 +120,7 @@ function getAnimeEpisodes(animes) {
                         var anime = animes[i];
                         anime.ano = $('body').children('home').children('div').children().children().next().text().match(/([0-9])\w+/g)[0];
                         anime.categorias = $('body').children('home').children('div').children().children().next().text().match(/(Categorias: )(.*)(?= Sinopse: )/);
-                        modelAnime.findByIdAndUpdate(anime._id, anime, {new: true}, function(err, model) {});
+                        modelAnime.findByIdAndUpdate(anime._id, anime, { new: true }, function (err, model) { });
 
                         // console.log($('body').children('home').children('div').children().children().next().children().next().text());
                         $('body').children('home').children('div').children().next().children().next().children('ul').children('li').each(function (index, row) {
@@ -125,12 +128,12 @@ function getAnimeEpisodes(animes) {
                             var episode = {
                                 animeId: animes[i]._id,
                                 link: link,
-                                numero: link.substring(link.length-2)
+                                numero: link.substring(link.length - 2)
                             }
                             aux[index] = episode;
                         });
                         aux.forEach(function (item) {
-                            modelEpisode.create(item).then((_) => {}, (error) => {
+                            modelEpisode.create(item).then((_) => { }, (error) => {
                                 if (error) {
                                     throw error;
                                 }
@@ -176,7 +179,7 @@ function getEpisodesLink(episodes) {
                             link1: aux[0],
                             link2: aux[1]
                         };
-                        modelEpisodeLink.create(episodeLink).then((_) => {}, (error) => {
+                        modelEpisodeLink.create(episodeLink).then((_) => { }, (error) => {
                             if (error) {
                                 throw error;
                             }

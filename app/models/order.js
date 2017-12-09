@@ -5,6 +5,11 @@ var schema = mongoose.Schema({
         type: String,
         required: true,
         unique: true
+    }, 
+    word: {
+        type: String,
+        required: true,
+        unique: true
     }
 });
 

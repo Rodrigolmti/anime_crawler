@@ -10,7 +10,7 @@ module.exports = function (app) {
     var modelEpisodeLink = mongoose.model('EpisodeLink');
 
     api.getOrderList = function (req, res) {
-        modelOrder.find({}).then(function (data) {
+        modelOrder.find({}).sort({word : 'asc'}).then(function (data) {
             res.status(200).send({
                 success: true,
                 data: data
@@ -26,7 +26,7 @@ module.exports = function (app) {
 
     api.getAnimeByOrderId = function (req, res) {
         if (req.query.orderId != null) {
-            modelAnime.find({orderId : req.query.orderId}).then(function (data) {
+            modelAnime.find({orderId : req.query.orderId}).sort({nome : 'asc'}).then(function (data) {
                 res.status(200).send({
                     success: true,
                     data: data
@@ -48,7 +48,7 @@ module.exports = function (app) {
 
     api.getAnimeByName = function (req, res) {
         if (req.query.animeName != null) {
-            modelAnime.find({nome : new RegExp(req.query.animeName, "i")}).then(function (data) {
+            modelAnime.find({nome : new RegExp(req.query.animeName, "i")}).sort({nome : 'asc'}).then(function (data) {
                 res.status(200).send({
                     success: true,
                     data: data
