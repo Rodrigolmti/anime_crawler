@@ -72,7 +72,7 @@ module.exports = function (app) {
         if (req.query.animeId != null) {
             modelEpisode.find({animeId : req.query.animeId}).sort({numero : 'asc'}).then(function (data) {
                 res.status(200).send({
-                    success: true,
+                        success: true,
                     data: data
                 });
             }, function (error) {

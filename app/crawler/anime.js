@@ -119,10 +119,17 @@ function getAnimeEpisodes(animes) {
 
                         var anime = animes[i];
                         anime.ano = $('body').children('home').children('div').children().children().next().text().match(/([0-9])\w+/g)[0];
-                        anime.categorias = $('body').children('home').children('div').children().children().next().text().match(/(Categorias: )(.*)(?= Sinopse: )/);
-                        modelAnime.findByIdAndUpdate(anime._id, anime, { new: true }, function (err, model) { });
 
-                        // console.log($('body').children('home').children('div').children().children().next().children().next().text());
+                        var categoriasRegex = /(.*Categorias:\s+)(.*)(\s+Sinopse:.*)/;
+                        var sinopseRegex = new RegExp('(Sinopse:\\s+)(.*)(\\s+.*)(\\s+'+anime.nome+')');
+
+                        var string = $('body').children('home').children('div').children().children().next().text();
+                        var match = string.match(sinopseRegex);
+
+                        anime.sinopse = match;
+                        anime.categorias = categoriasRegex.exec(string)[2].replace("Sinopse:", "");
+
+                        modelAnime.findByIdAndUpdate(anime._id, anime, { new: true }, function (err, model) { });
                         $('body').children('home').children('div').children().next().children().next().children('ul').children('li').each(function (index, row) {
                             var link = $(this).children('p').children('a').attr('href')
                             var episode = {
